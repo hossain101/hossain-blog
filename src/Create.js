@@ -7,11 +7,28 @@ const Create = () => {
     const [title,setTitle] = useState('');
     const [body,setBody] = useState('');
     const [author,setAuthor] = useState('');
+    const[isPending,setIsPending] = useState(false);
 
 const handleSubmit = (e) => {
     e.preventDefault();
     const blog = {title,body,author};
     console.log(blog);
+
+    setIsPending(true);
+
+    fetch('http://localhost:8000/blogs',{
+        method: 'POST',
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(blog)
+    }).then(() => {
+        console.log('new blog added');
+        setIsPending(false);
+        setTitle('');
+        setBody('');
+        setAuthor('');
+            
+    })
+
 }
 
 
@@ -27,7 +44,9 @@ const handleSubmit = (e) => {
                 <textarea required value={body} onChange={(e)=>setBody(e.target.value)}></textarea>
                 <label>Blog author:</label>
               <input type="text" required value = {author} onChange={(e)=>setAuthor(e.target.value)} />
-                <button>Add Blog</button>
+               { !isPending&&<button>Add Blog</button>}
+               { isPending&&<button disabled>Adding Blog...</button>}
+
 
                 {/* <p>{title}</p>
                 <p>{body}</p> */}
