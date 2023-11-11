@@ -1,34 +1,83 @@
 
 import { useState } from "react";
+import { useHistory } from "react-router-dom";
 
 
 
-const Create = () => {
+const Create =  () => {
     const [title,setTitle] = useState('');
     const [body,setBody] = useState('');
     const [author,setAuthor] = useState('');
     const[isPending,setIsPending] = useState(false);
+    const history = useHistory();
+    let lastBlogId = 0;
 
-const handleSubmit = (e) => {
+// const getLastBlogId = () => {
+//     fetch('http://localhost:8000/blogs')
+//     .then((res) => {
+//         if(!res.ok){
+//             throw Error('could not fetch the data for that resource');
+//         }
+//         return res.json();
+//     })
+//     .then((data) => {
+//         console.log(data);
+//         return data.length;
+//     }).catch((err) => {
+//         console.log(err.message);
+//     })
+// }
+
+const getLastBlogId2 = async () => {
+    const response = await fetch('http://localhost:8000/blogs');
+    const data = await response.json();
+    console.log(data.length);
+    return data.length;
+    
+}
+
+
+ getLastBlogId2().then((data) => {
+    lastBlogId = data;
+    console.log(lastBlogId);
+}).catch((err) => {
+    console.log(err.message);
+});
+
+const handleSubmit = async (e) => {
     e.preventDefault();
     const blog = {title,body,author};
     console.log(blog);
 
     setIsPending(true);
 
-    fetch('http://localhost:8000/blogs',{
+   await fetch('http://localhost:8000/blogs',{
         method: 'POST',
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(blog)
     }).then(() => {
         console.log('new blog added');
+        console.log(lastBlogId);
+       
         setIsPending(false);
-        setTitle('');
-        setBody('');
-        setAuthor('');
-            
-    })
+       
 
+        //Move to the latest BlogDetails component
+       // history.push('/blogs/' + getLastBlogId2());
+    })
+    .catch((err) => {
+        console.log(err.message);
+    }   
+    ).then(() => {
+        console.log(lastBlogId);
+        console.log('sending to new page');
+        
+        history.push(`blogs/${lastBlogId+1}`);
+    });
+    //Move to the latest BlogDetails component
+    
+
+    // history.go(-1);//go back to the previous page
 }
 
 
